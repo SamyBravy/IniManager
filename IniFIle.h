@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -22,9 +23,10 @@ class IniFIle
         bool save() const;
         string get(const string& section, const string& key) const;
         void set(const string& section, const string& key, const string& value);
-        void addSection(const string& section) const;
+        void addSection(const string& section);
         bool hasSection(const string& section) const;
         bool hasKey(const string& section, const string& key) const;
+        bool hasKey(const string& key) const;
 
     private:
         string fileName;

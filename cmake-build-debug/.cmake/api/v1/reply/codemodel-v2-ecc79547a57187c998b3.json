@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "IniManager::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-IniManager-Debug-b3f2e9929493cd24f21d.json",
+					"jsonFile" : "target-IniManager-Debug-b6110b39346af27bb32d.json",
 					"name" : "IniManager",
 					"projectIndex" : 0
 				}
@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/samyb/OneDrive/Samuele/Universit\u00e0/Laboratorio di programmazione/IniManager/cmake-build-debug",
-		"source" : "C:/Users/samyb/OneDrive/Samuele/Universit\u00e0/Laboratorio di programmazione/IniManager"
+		"build" : "C:/Users/samyb/Documents/Altro/Primo anno universit\u00e0/Laboratorio di programmazione/IniManager/cmake-build-debug",
+		"source" : "C:/Users/samyb/Documents/Altro/Primo anno universit\u00e0/Laboratorio di programmazione/IniManager"
 	},
 	"version" : 
 	{

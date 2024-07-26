@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/samyb/OneDrive/Samuele/Università/Laboratorio di programmazione/IniManager
+# Install script for directory: C:/Users/samyb/Documents/Altro/Primo anno università/Laboratorio di programmazione/IniManager
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/samyb/OneDrive/Samuele/Università/Laboratorio di programmazione/IniManager/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/samyb/Documents/Altro/Primo anno università/Laboratorio di programmazione/IniManager/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

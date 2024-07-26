@@ -9,24 +9,27 @@
 #include <map>
 #include <fstream>
 #include <algorithm>
+#include <stdexcept>
+#include <iostream>
 
 using namespace std;
 
-class IniFIle
+class IniFile
 {
     public:
-        IniFIle() = default;
-        explicit IniFIle(string& name);
-        ~IniFIle();
-        bool load(const string& name);
-        bool save(const string& name) const;
-        bool save() const;
+        IniFile() = default;
+        explicit IniFile(string name);
+        void load(const string& name);
+        void save(const string& name) const;
+        void save() const;
         string get(const string& section, const string& key) const;
         void set(const string& section, const string& key, const string& value);
         void addSection(const string& section);
         bool hasSection(const string& section) const;
         bool hasKey(const string& section, const string& key) const;
         bool hasKey(const string& key) const;
+        // TODO deleteSection
+        // TODO deleteKey
 
     private:
         string fileName;

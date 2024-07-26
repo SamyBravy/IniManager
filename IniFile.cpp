@@ -3,7 +3,7 @@
 //
 
 #include "IniFile.h"
-// TODO roba per non eliminare i commenti
+
 IniFile::IniFile(string name) : fileName(std::move(name))
 {
     try
@@ -19,13 +19,14 @@ IniFile::IniFile(string name) : fileName(std::move(name))
 void IniFile::load(const string& name)
 {
     fileName = name;
-    ifstream file(fileName); // apre il file in lettura
+    ifstream file(fileName);    // apre il file in lettura
 
     if (!file.is_open())
         throw runtime_error("Unable to open file: " + fileName);
 
     string line;
     string section;
+    string comment;
 
     for (int n = 0; getline(file, line); n++)
     {
@@ -34,13 +35,18 @@ void IniFile::load(const string& name)
 
         if (line[0] == ';')
         {
-            comments[n] += line + '\n';
+            comment += line + "\n";
             continue;
         }
 
         if (line[0] == '[')
         {
             section = line.substr(1, line.size() - 2);
+            if (!comment.empty())
+            {
+                sectionComments[section] = comment;
+                comment.clear();
+            }
             continue;
         }
 
@@ -51,6 +57,12 @@ void IniFile::load(const string& name)
         string key = line.substr(0, pos);
         string value = line.substr(pos + 1);
         data[section][key] = value;
+
+        if (!comment.empty())
+        {
+            keyComments[section][key] = comment;
+            comment.clear();
+        }
     }
 
     if (file.bad()) // controlla se ci sono stati errori durante la lettura
@@ -59,16 +71,34 @@ void IniFile::load(const string& name)
 
 void IniFile::save(const string& name) const
 {
-    ofstream file(name); // sovrascrive il file
+    ofstream file(name);    // apre il file in scrittura (sovrascrive il file se esiste)
 
     if (!file.is_open())
         throw runtime_error("Unable to open file for writing: " + name);
 
     for (const auto& section : data)
     {
+        auto sectionComment = sectionComments.find(section.first);
+        if (sectionComment != sectionComments.end())
+        {
+            file << sectionComment->second;
+        }
+
         file << '[' << section.first << ']' << std::endl;
+
         for (const auto& key : section.second)
+        {
+            auto keyCommentSection = keyComments.find(section.first);
+            if (keyCommentSection != keyComments.end())
+            {
+                auto keyComment = keyCommentSection->second.find(key.first);
+                if (keyComment != keyCommentSection->second.end())
+                {
+                    file << keyComment->second;
+                }
+            }
             file << key.first << '=' << key.second << std::endl;
+        }
     }
 
     if (file.bad()) // controlla se ci sono stati errori durante la scrittura
@@ -145,32 +175,47 @@ void IniFile::deleteKey(const string& key)
         section.second.erase(key);
 }
 
+void IniFile::setSectionComment(const string& section, const string& comment)
+{
+    sectionComments[section] = comment;
+}
+
+void IniFile::setKeyComment(const string& section, const string& key, const string& comment)
+{
+    keyComments[section][key] = comment;
+}
+
 void IniFile::print(bool print_comments) const
 {
-    int n = 0;
-
-    for (auto section = data.begin(); section != data.end();)
+    for (const auto& section : data)
     {
-        if (print_comments && comments.find(n) != comments.end())
+        if (print_comments)
         {
-            cout << comments.at(n);
-            n++;
-            continue;
-        }
-        cout << '[' << section->first << ']' << endl;
-        n++;
-        for (auto key = section->second.begin(); key != section->second.end();)
-        {
-            if (print_comments && comments.find(n) != comments.end())
+            auto sectionComment = sectionComments.find(section.first);
+            if (sectionComment != sectionComments.end())
             {
-                cout << comments.at(n);
-                n++;
-                continue;
+                cout << sectionComment->second;
             }
-            cout << key->first << '=' << key->second << endl;
-            key++;
-            n++;
         }
-        section++;
+
+        cout << '[' << section.first << ']' << std::endl;
+
+        for (const auto& key : section.second)
+        {
+            if (print_comments)
+            {
+                auto keyCommentSection = keyComments.find(section.first);
+                if (keyCommentSection != keyComments.end())
+                {
+                    auto keyComment = keyCommentSection->second.find(key.first);
+                    if (keyComment != keyCommentSection->second.end())
+                    {
+                        cout << keyComment->second;
+                    }
+                }
+            }
+            cout << key.first << '=' << key.second << std::endl;
+        }
     }
 }
+

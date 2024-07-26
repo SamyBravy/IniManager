@@ -31,13 +31,15 @@ class IniFile
         void deleteSection(const string& section);
         void deleteKey(const string& section, const string& key);
         void deleteKey(const string& key);
+        void setSectionComment(const string& section, const string& comment);
+        void setKeyComment(const string& section, const string& key, const string& comment);
         void print(bool print_comments) const;
 
     private:
         string fileName;
         map<string, map<string, string>> data;
-        map<int, string> comments;
+        map<string, string> sectionComments;
+        map<string, map<string, string>> keyComments;
 };
-
 
 #endif //INIMANAGER_INIFILE_H

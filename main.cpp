@@ -9,17 +9,20 @@
 using namespace std;
 namespace fs = filesystem;
 
-void testLoadAndSave();
+void testLoadSaveComments();
 void testLoadWithErrors();
 void testSaveWithErrors();
 void testAddSection();
 void testHasSection();
 void testHasKey();
 void testGetAndSet();
+void testDeleteSection();
+void testDeleteKey();
+void testComments();
 
 int main()
 {
-    testLoadAndSave();
+    testLoadSaveComments();
 
     testLoadWithErrors();
     testSaveWithErrors();
@@ -32,10 +35,15 @@ int main()
 
     testGetAndSet();
 
+    testDeleteSection();
+    testDeleteKey();
+
+    testComments();
+
     return 0;
 }
 
-void testLoadAndSave()
+void testLoadSaveComments()
 {
     cout << "Test: Load and Save" << endl;
 
@@ -65,11 +73,8 @@ void testLoadAndSave()
         cerr << "Error loading INI file: " << e.what() << endl;
     }
 
-    cout << "Cloned file:" << endl;
-    cout << "General.Name: " << ini.get("General", "Name") << endl;
-    cout << "General.Version: " << ini.get("General", "Version") << endl;
-    cout << "Network.Host: " << ini.get("Network", "Host") << endl;
-    cout << "Network.Port: " << ini.get("Network", "Port") << endl;
+    cout << "Cloned file without comments:" << endl;
+    ini.print(false);
 
     IniFile loadedIni;
 
@@ -82,11 +87,8 @@ void testLoadAndSave()
         cerr << "Error loading INI file: " << e.what() << endl;
     }
 
-    cout << "Modified file:" << endl;
-    cout << "General.Name: " << loadedIni.get("General", "Name") << endl;
-    cout << "General.Version: " << loadedIni.get("General", "Version") << endl;
-    cout << "Network.Host: " << loadedIni.get("Network", "Host") << endl;
-    cout << "Network.Port: " << loadedIni.get("Network", "Port") << endl;
+    cout << "Modified file with comments:" << endl;
+    loadedIni.print(true);
     cout << endl;
 }
 
@@ -265,7 +267,118 @@ void testGetAndSet()
     {
         cerr << "Error loading INI file: " << e.what() << endl;
     }
+
     cout << "Settings.Language: " << ini.get("Settings", "Language") << endl;
     cout << "Settings.Theme: " << ini.get("Settings", "Theme") << endl;
     cout << endl;
+}
+
+void testDeleteSection()
+{
+    cout << "Test: Delete Section" << endl;
+
+    IniFile ini("../test/test_delete_section.ini");
+    ini.addSection("SectionToDelete");
+    ini.set("SectionToDelete", "Key1", "Value1");
+    ini.set("SectionToDelete", "Key2", "Value2");
+
+    ini.save("../test/test_delete_section.ini");
+    ini.deleteSection("SectionToDelete");
+
+    try
+    {
+        ini.save("../test/test_delete_section_deleted.ini");
+    }
+    catch (const exception& e)
+    {
+        cerr << "Error saving INI file: " << e.what() << endl;
+    }
+
+    ini.load("../test/test_delete_section_deleted.ini");
+
+    cout << "Has 'SectionToDelete': " << ini.hasSection("SectionToDelete") << endl;
+    cout << endl;
+}
+
+void testDeleteKey()
+{
+    cout << "Test: Delete Key" << endl;
+
+    IniFile ini("../test/test_delete_key.ini");
+    ini.set("Section1", "KeyToDelete", "ValueToDelete");
+    ini.set("Section2", "KeyToDelete", "ValueToDelete2");
+    ini.set("Section1", "KeyToKeep", "ValueToKeep");
+
+    ini.save("../test/test_delete_key.ini");
+
+    ini.deleteKey("Section1", "KeyToDelete");
+    try
+    {
+        ini.save("../test/test_delete_key_specific_deleted.ini");
+    }
+    catch (const exception& e)
+    {
+        cerr << "Error saving INI file: " << e.what() << endl;
+    }
+    ini.load("../test/test_delete_key_specific_deleted.ini");
+    cout << "After deleting 'KeyToDelete' from 'Section1':" << endl;
+    cout << "Has 'Section1.KeyToDelete': " << ini.hasKey("Section1", "KeyToDelete") << endl;
+    cout << "Has 'Section2.KeyToDelete': " << ini.hasKey("Section2", "KeyToDelete") << endl;
+    cout << "Has 'Section1.KeyToKeep': " << ini.hasKey("Section1", "KeyToKeep") << endl;
+
+    ini.set("Section1", "KeyToDelete", "ValueToDelete");
+    ini.save("../test/test_delete_key.ini");
+    ini.load("../test/test_delete_key.ini");
+
+    ini.deleteKey("KeyToDelete");
+    try
+    {
+        ini.save("../test/test_delete_key_all_deleted.ini");
+    }
+    catch (const exception& e)
+    {
+        cerr << "Error saving INI file: " << e.what() << endl;
+    }
+    ini.load("../test/test_delete_key_all_deleted.ini");
+    cout << "After deleting 'KeyToDelete' from all sections:" << endl;
+    cout << "Has 'Section1.KeyToDelete': " << ini.hasKey("Section1", "KeyToDelete") << endl;
+    cout << "Has 'Section2.KeyToDelete': " << ini.hasKey("Section2", "KeyToDelete") << endl;
+    cout << "Has 'Section1.KeyToKeep': " << ini.hasKey("Section1", "KeyToKeep") << endl;
+    cout << endl;
+}
+
+void testComments()
+{
+    cout << "Test: Comments Handling" << endl;
+
+    IniFile ini("../test/test_comments.ini");
+
+    cout << "Original file with comments:" << endl;
+    ini.print(true);
+
+    ini.set("General", "Weight", "10");
+    ini.set("NewSection", "NewKey", "NewValue");
+    ini.setSectionComment("NewSection", "; Comment for the new section\n");
+    ini.setKeyComment("NewSection", "NewKey", "; Comment for the new key\n");
+
+    try
+    {
+        ini.save("../test/test_comments_modified.ini");
+    }
+    catch (const exception& e)
+    {
+        cerr << "Error saving INI file: " << e.what() << endl;
+    }
+
+    try
+    {
+        ini.load("../test/test_comments_modified.ini");
+    }
+    catch (const exception& e)
+    {
+        cerr << "Error loading INI file: " << e.what() << endl;
+    }
+
+    cout << "Modified file with comments:" << endl;
+    ini.print(true);
 }

@@ -28,12 +28,15 @@ class IniFile
         bool hasSection(const string& section) const;
         bool hasKey(const string& section, const string& key) const;
         bool hasKey(const string& key) const;
-        // TODO deleteSection
-        // TODO deleteKey
+        void deleteSection(const string& section);
+        void deleteKey(const string& section, const string& key);
+        void deleteKey(const string& key);
+        void print(bool print_comments) const;
 
     private:
         string fileName;
         map<string, map<string, string>> data;
+        map<int, string> comments;
 };
 
 

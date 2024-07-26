@@ -27,10 +27,16 @@ void IniFile::load(const string& name)
     string line;
     string section;
 
-    while (getline(file, line))
+    for (int n = 0; getline(file, line); n++)
     {
         if (line.empty())
             continue;
+
+        if (line[0] == ';')
+        {
+            comments[n] += line + '\n';
+            continue;
+        }
 
         if (line[0] == '[')
         {
@@ -51,7 +57,6 @@ void IniFile::load(const string& name)
         throw runtime_error("Error reading the file: " + fileName);
 }
 
-// Metodo per salvare il file INI
 void IniFile::save(const string& name) const
 {
     ofstream file(name); // sovrascrive il file
@@ -70,13 +75,11 @@ void IniFile::save(const string& name) const
         throw runtime_error("Error writing to the file: " + name);
 }
 
-// Metodo per salvare il file INI
 void IniFile::save() const
 {
     save(fileName);
 }
 
-// Metodo per ottenere un valore
 string IniFile::get(const string& section, const string& key) const
 {
     auto it = data.find(section);
@@ -90,25 +93,21 @@ string IniFile::get(const string& section, const string& key) const
     return it2->second;
 }
 
-// Metodo per impostare un valore
 void IniFile::set(const string& section, const string& key, const string& value)
 {
     data[section][key] = value; // se sezione o chiave non esistono vengono create
 }
 
-// Metodo per aggiungere una sezione
 void IniFile::addSection(const string& section)
 {
     data[section]; // se la sezione non esiste viene creata, altrimenti non fa nulla
 }
 
-// Metodo per verificare se una sezione esiste
 bool IniFile::hasSection(const string& section) const
 {
     return data.find(section) != data.end();
 }
 
-// Metodo per verificare se una chiave esiste in una sezione specifica
 bool IniFile::hasKey(const string& section, const string& key) const
 {
     auto it = data.find(section);
@@ -118,11 +117,60 @@ bool IniFile::hasKey(const string& section, const string& key) const
     return it->second.find(key) != it->second.end();
 }
 
-// Metodo per verificare se una chiave esiste in qualsiasi sezione
 bool IniFile::hasKey(const string& key) const
 {
     // std::any_of ritorna true se almeno un elemento soddisfa il predicato
     return any_of(data.begin(), data.end(), [&](const auto& section) {
-        return hasKey(section.first, key);
+        return section.second.find(key) != section.second.end();
     });
+}
+
+void IniFile::deleteSection(const string& section)
+{
+    data.erase(section);    // se la sezione non esiste non fa nulla
+}
+
+void IniFile::deleteKey(const string& section, const string& key)
+{
+    auto it = data.find(section);
+    if (it == data.end())
+        return;
+
+    it->second.erase(key);
+}
+
+void IniFile::deleteKey(const string& key)
+{
+    for (auto& section : data)
+        section.second.erase(key);
+}
+
+void IniFile::print(bool print_comments) const
+{
+    int n = 0;
+
+    for (auto section = data.begin(); section != data.end();)
+    {
+        if (print_comments && comments.find(n) != comments.end())
+        {
+            cout << comments.at(n);
+            n++;
+            continue;
+        }
+        cout << '[' << section->first << ']' << endl;
+        n++;
+        for (auto key = section->second.begin(); key != section->second.end();)
+        {
+            if (print_comments && comments.find(n) != comments.end())
+            {
+                cout << comments.at(n);
+                n++;
+                continue;
+            }
+            cout << key->first << '=' << key->second << endl;
+            key++;
+            n++;
+        }
+        section++;
+    }
 }

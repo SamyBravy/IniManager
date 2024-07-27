@@ -40,6 +40,7 @@ class IniFile
         map<string, map<string, string>> data;
         map<string, string> sectionComments;
         map<string, map<string, string>> keyComments;
+        static string toLower(const string &str);
 };
 
 #endif //INIMANAGER_INIFILE_H

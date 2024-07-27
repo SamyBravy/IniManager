@@ -4,6 +4,13 @@
 
 #include "IniFile.h"
 
+string IniFile::toLower(const string& str)
+{
+    string lowerStr = str;
+    transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
+    return lowerStr;
+}
+
 IniFile::IniFile(string name) : fileName(std::move(name))
 {
     try
@@ -41,7 +48,7 @@ void IniFile::load(const string& name)
 
         if (line[0] == '[')
         {
-            section = line.substr(1, line.size() - 2);
+            section = toLower(line.substr(1, line.size() - 2));
             if (!comment.empty())
             {
                 sectionComments[section] = comment;
@@ -54,7 +61,7 @@ void IniFile::load(const string& name)
         if (pos == string::npos)
             continue;
 
-        string key = line.substr(0, pos);
+        string key = toLower(line.substr(0, pos));
         string value = line.substr(pos + 1);
         data[section][key] = value;
 
@@ -112,11 +119,11 @@ void IniFile::save() const
 
 string IniFile::get(const string& section, const string& key) const
 {
-    auto it = data.find(section);
+    auto it = data.find(toLower(section));
     if (it == data.end())
         return "";
 
-    auto it2 = it->second.find(key);
+    auto it2 = it->second.find(toLower(key));
     if (it2 == it->second.end())
         return "";
 
@@ -125,64 +132,68 @@ string IniFile::get(const string& section, const string& key) const
 
 void IniFile::set(const string& section, const string& key, const string& value)
 {
-    data[section][key] = value; // se sezione o chiave non esistono vengono create
+    data[toLower(section)][toLower(key)] = value; // se sezione o chiave non esistono vengono create
 }
 
 void IniFile::addSection(const string& section)
 {
-    data[section]; // se la sezione non esiste viene creata, altrimenti non fa nulla
+    data[toLower(section)]; // se la sezione non esiste viene creata, altrimenti non fa nulla
 }
 
 bool IniFile::hasSection(const string& section) const
 {
-    return data.find(section) != data.end();
+    return data.find(toLower(section)) != data.end();
 }
 
 bool IniFile::hasKey(const string& section, const string& key) const
 {
-    auto it = data.find(section);
+    auto it = data.find(toLower(section));
     if (it == data.end())
         return false;
 
-    return it->second.find(key) != it->second.end();
+    return it->second.find(toLower(key)) != it->second.end();
 }
 
 bool IniFile::hasKey(const string& key) const
 {
+    string lowerKey = toLower(key);
+
     // std::any_of ritorna true se almeno un elemento soddisfa il predicato
     return any_of(data.begin(), data.end(), [&](const auto& section) {
-        return section.second.find(key) != section.second.end();
+        return section.second.find(lowerKey) != section.second.end();
     });
 }
 
 void IniFile::deleteSection(const string& section)
 {
-    data.erase(section);    // se la sezione non esiste non fa nulla
+    data.erase(toLower(section));    // se la sezione non esiste non fa nulla
 }
 
 void IniFile::deleteKey(const string& section, const string& key)
 {
-    auto it = data.find(section);
+    auto it = data.find(toLower(section));
     if (it == data.end())
         return;
 
-    it->second.erase(key);
+    it->second.erase(toLower(key));
 }
 
 void IniFile::deleteKey(const string& key)
 {
+    string lowerKey = toLower(key);
+
     for (auto& section : data)
-        section.second.erase(key);
+        section.second.erase(lowerKey);
 }
 
 void IniFile::setSectionComment(const string& section, const string& comment)
 {
-    sectionComments[section] = comment;
+    sectionComments[toLower(section)] = comment;
 }
 
 void IniFile::setKeyComment(const string& section, const string& key, const string& comment)
 {
-    keyComments[section][key] = comment;
+    keyComments[toLower(section)][toLower(key)] = comment;
 }
 
 void IniFile::print(bool print_comments) const

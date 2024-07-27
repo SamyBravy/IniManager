@@ -9,6 +9,7 @@
 using namespace std;
 namespace fs = filesystem;
 
+void testCreateIniFile();
 void testLoadSaveComments();
 void testLoadWithErrors();
 void testSaveWithErrors();
@@ -22,6 +23,7 @@ void testComments();
 
 int main()
 {
+    testCreateIniFile();
     testLoadSaveComments();
 
     testLoadWithErrors();
@@ -43,11 +45,37 @@ int main()
     return 0;
 }
 
+void testCreateIniFile()
+{
+    cout << "Test: Create INI File" << endl;
+
+    IniFile ini;
+    ini.set("General", "Name", "TestApp");
+    ini.set("General", "Version", "1.0");
+    ini.set("Network", "Host", "localhost");
+    ini.set("Network", "Port", "8080");
+
+    try
+    {
+        ini.save("../iniFiles/created.ini");
+    }
+    catch (const exception& e)
+    {
+        cerr << "Error saving INI file: " << e.what() << endl;
+    }
+
+    cout << "Created file:" << endl;
+    ini.print(false);
+    cout << endl;
+
+    fs::remove("../iniFiles/created.ini");
+}
+
 void testLoadSaveComments()
 {
     cout << "Test: Load and Save" << endl;
 
-    IniFile ini("../test/test.ini");
+    IniFile ini("../iniFiles/test.ini");
 
     ini.set("General", "Name", "TestApp");
     ini.set("General", "Version", "1.0");
@@ -56,7 +84,7 @@ void testLoadSaveComments()
 
     try
     {
-        ini.save("../test/new_test.ini");
+        ini.save("../iniFiles/new_test.ini");
         ini.save();
     }
     catch (const exception& e)
@@ -66,7 +94,7 @@ void testLoadSaveComments()
 
     try
     {
-        ini.load("../test/new_test.ini");
+        ini.load("../iniFiles/new_test.ini");
     }
     catch (const exception& e)
     {
@@ -80,7 +108,7 @@ void testLoadSaveComments()
 
     try
     {
-        loadedIni.load("../test/test.ini");
+        loadedIni.load("../iniFiles/test.ini");
     }
     catch (const exception& e)
     {
@@ -90,6 +118,8 @@ void testLoadSaveComments()
     cout << "Modified file with comments:" << endl;
     loadedIni.print(true);
     cout << endl;
+
+    fs::remove("../iniFiles/new_test.ini");
 }
 
 void testLoadWithErrors()
@@ -100,11 +130,11 @@ void testLoadWithErrors()
     if (fs::exists("non_existent_file.ini"))
         fs::remove("non_existent_file.ini");
 
-    IniFile ini("../test/non_existent_file.ini");
+    IniFile ini("../iniFiles/non_existent_file.ini");
 
     try
     {
-        ini.load("../test/non_existent_file.ini");
+        ini.load("../iniFiles/non_existent_file.ini");
     }
     catch (const exception& e)
     {
@@ -119,8 +149,8 @@ void testSaveWithErrors()
     cout << "Test: Save with Errors" << endl;
 
     // Crea un file temporaneo per simulare un errore di scrittura
-    fs::create_directory("../test/read_only_dir");
-    fs::path readonlyFilePath = "../test/read_only_dir/test_save.ini";
+    fs::create_directory("../iniFiles/read_only_dir");
+    fs::path readonlyFilePath = "../iniFiles/read_only_dir/test_save.ini";
 
     // Crea un file temporaneo
     ofstream readonlyFile(readonlyFilePath);
@@ -129,12 +159,12 @@ void testSaveWithErrors()
     // Rende il file di sola lettura
     fs::permissions(readonlyFilePath, fs::perms::none);
 
-    IniFile ini("../test/read_only_dir/test_save.ini");
+    IniFile ini("../iniFiles/read_only_dir/test_save.ini");
     ini.set("Test", "Key", "Value");
 
     try
     {
-        ini.save("../test/read_only_dir/test_save.ini");
+        ini.save("../iniFiles/read_only_dir/test_save.ini");
     }
     catch (const runtime_error& e)
     {
@@ -144,7 +174,7 @@ void testSaveWithErrors()
     // Ripristina i permessi e rimuove il file e la directory temporanei
     fs::permissions(readonlyFilePath, fs::perms::all);
     fs::remove(readonlyFilePath);
-    fs::remove("../test/read_only_dir");
+    fs::remove("../iniFiles/read_only_dir");
 
     cout << endl;
 }
@@ -153,7 +183,7 @@ void testAddSection()
 {
     cout << "Test: Add Section" << endl;
 
-    IniFile ini("../test/test_add_section.ini");
+    IniFile ini("../iniFiles/test_add_section.ini");
     ini.addSection("NewSection");
     ini.set("NewSection", "Key1", "Value1");
 
@@ -168,7 +198,7 @@ void testAddSection()
 
     try
     {
-        ini.load("../test/test_add_section.ini");
+        ini.load("../iniFiles/test_add_section.ini");
     }
     catch (const exception& e)
     {
@@ -183,7 +213,7 @@ void testHasSection()
 {
     cout << "Test: Has Section" << endl;
 
-    IniFile ini("../test/test_has_section.ini");
+    IniFile ini("../iniFiles/test_has_section.ini");
     ini.addSection("ExistingSection");
 
     try
@@ -197,7 +227,7 @@ void testHasSection()
 
     try
     {
-        ini.load("../test/test_has_section.ini");
+        ini.load("../iniFiles/test_has_section.ini");
     }
     catch (const exception& e)
     {
@@ -213,7 +243,7 @@ void testHasKey()
 {
     cout << "Test: Has Key" << endl;
 
-    IniFile ini("../test/test_has_key.ini");
+    IniFile ini("../iniFiles/test_has_key.ini");
     ini.set("Section1", "Key1", "Value1");
     ini.set("Section1", "Key2", "Value2");
 
@@ -228,7 +258,7 @@ void testHasKey()
 
     try
     {
-        ini.load("../test/test_has_key.ini");
+        ini.load("../iniFiles/test_has_key.ini");
     }
     catch (const exception& e)
     {
@@ -246,7 +276,7 @@ void testGetAndSet()
 {
     cout << "Test: Get and Set" << endl;
 
-    IniFile ini("../test/test_get_set.ini");
+    IniFile ini("../iniFiles/test_get_set.ini");
     ini.set("Settings", "Language", "English");
     ini.set("Settings", "Theme", "Dark");
 
@@ -261,7 +291,7 @@ void testGetAndSet()
 
     try
     {
-        ini.load("../test/test_get_set.ini");
+        ini.load("../iniFiles/test_get_set.ini");
     }
     catch (const exception& e)
     {
@@ -277,81 +307,87 @@ void testDeleteSection()
 {
     cout << "Test: Delete Section" << endl;
 
-    IniFile ini("../test/test_delete_section.ini");
+    IniFile ini("../iniFiles/test_delete_section.ini");
     ini.addSection("SectionToDelete");
     ini.set("SectionToDelete", "Key1", "Value1");
     ini.set("SectionToDelete", "Key2", "Value2");
 
-    ini.save("../test/test_delete_section.ini");
+    ini.save("../iniFiles/test_delete_section.ini");
     ini.deleteSection("SectionToDelete");
 
     try
     {
-        ini.save("../test/test_delete_section_deleted.ini");
+        ini.save("../iniFiles/test_delete_section_deleted.ini");
     }
     catch (const exception& e)
     {
         cerr << "Error saving INI file: " << e.what() << endl;
     }
 
-    ini.load("../test/test_delete_section_deleted.ini");
+    ini.load("../iniFiles/test_delete_section_deleted.ini");
 
     cout << "Has 'SectionToDelete': " << ini.hasSection("SectionToDelete") << endl;
     cout << endl;
+
+    fs::remove("../iniFiles/test_delete_section_deleted.ini");
 }
 
 void testDeleteKey()
 {
     cout << "Test: Delete Key" << endl;
 
-    IniFile ini("../test/test_delete_key.ini");
+    IniFile ini("../iniFiles/test_delete_key.ini");
     ini.set("Section1", "KeyToDelete", "ValueToDelete");
     ini.set("Section2", "KeyToDelete", "ValueToDelete2");
     ini.set("Section1", "KeyToKeep", "ValueToKeep");
 
-    ini.save("../test/test_delete_key.ini");
+    ini.save("../iniFiles/test_delete_key.ini");
 
     ini.deleteKey("Section1", "KeyToDelete");
     try
     {
-        ini.save("../test/test_delete_key_specific_deleted.ini");
+        ini.save("../iniFiles/test_delete_key_specific_deleted.ini");
     }
     catch (const exception& e)
     {
         cerr << "Error saving INI file: " << e.what() << endl;
     }
-    ini.load("../test/test_delete_key_specific_deleted.ini");
+    ini.load("../iniFiles/test_delete_key_specific_deleted.ini");
     cout << "After deleting 'KeyToDelete' from 'Section1':" << endl;
     cout << "Has 'Section1.KeyToDelete': " << ini.hasKey("Section1", "KeyToDelete") << endl;
     cout << "Has 'Section2.KeyToDelete': " << ini.hasKey("Section2", "KeyToDelete") << endl;
     cout << "Has 'Section1.KeyToKeep': " << ini.hasKey("Section1", "KeyToKeep") << endl;
 
+    fs::remove("../iniFiles/test_delete_key_specific_deleted.ini");
+
     ini.set("Section1", "KeyToDelete", "ValueToDelete");
-    ini.save("../test/test_delete_key.ini");
-    ini.load("../test/test_delete_key.ini");
+    ini.save("../iniFiles/test_delete_key.ini");
+    ini.load("../iniFiles/test_delete_key.ini");
 
     ini.deleteKey("KeyToDelete");
     try
     {
-        ini.save("../test/test_delete_key_all_deleted.ini");
+        ini.save("../iniFiles/test_delete_key_all_deleted.ini");
     }
     catch (const exception& e)
     {
         cerr << "Error saving INI file: " << e.what() << endl;
     }
-    ini.load("../test/test_delete_key_all_deleted.ini");
+    ini.load("../iniFiles/test_delete_key_all_deleted.ini");
     cout << "After deleting 'KeyToDelete' from all sections:" << endl;
     cout << "Has 'Section1.KeyToDelete': " << ini.hasKey("Section1", "KeyToDelete") << endl;
     cout << "Has 'Section2.KeyToDelete': " << ini.hasKey("Section2", "KeyToDelete") << endl;
     cout << "Has 'Section1.KeyToKeep': " << ini.hasKey("Section1", "KeyToKeep") << endl;
     cout << endl;
+
+    fs::remove("../iniFiles/test_delete_key_all_deleted.ini");
 }
 
 void testComments()
 {
     cout << "Test: Comments Handling" << endl;
 
-    IniFile ini("../test/test_comments.ini");
+    IniFile ini("../iniFiles/test_comments.ini");
 
     cout << "Original file with comments:" << endl;
     ini.print(true);
@@ -363,7 +399,7 @@ void testComments()
 
     try
     {
-        ini.save("../test/test_comments_modified.ini");
+        ini.save("../iniFiles/test_comments_modified.ini");
     }
     catch (const exception& e)
     {
@@ -372,7 +408,7 @@ void testComments()
 
     try
     {
-        ini.load("../test/test_comments_modified.ini");
+        ini.load("../iniFiles/test_comments_modified.ini");
     }
     catch (const exception& e)
     {
@@ -381,4 +417,6 @@ void testComments()
 
     cout << "Modified file with comments:" << endl;
     ini.print(true);
+
+    fs::remove("../iniFiles/test_comments_modified.ini");
 }

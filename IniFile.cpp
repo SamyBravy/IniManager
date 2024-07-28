@@ -164,36 +164,52 @@ bool IniFile::hasKey(const string& key) const
     });
 }
 
-void IniFile::deleteSection(const string& section)
+bool IniFile::deleteSection(const string& section)
 {
-    data.erase(toLower(section));    // se la sezione non esiste non fa nulla
+    if (!hasSection(section))
+        return false;
+    data.erase(toLower(section));
+    return true;
 }
 
-void IniFile::deleteKey(const string& section, const string& key)
+bool IniFile::deleteKey(const string& section, const string& key)
 {
     auto it = data.find(toLower(section));
     if (it == data.end())
-        return;
+        return false;
 
     it->second.erase(toLower(key));
+    return true;
 }
 
-void IniFile::deleteKey(const string& key)
+bool IniFile::deleteKey(const string& key)
 {
+    if (!hasKey(key))
+        return false;
+
     string lowerKey = toLower(key);
 
     for (auto& section : data)
         section.second.erase(lowerKey);
+    return true;
 }
 
-void IniFile::setSectionComment(const string& section, const string& comment)
+bool IniFile::setSectionComment(const string& section, const string& comment)
 {
+    if (!hasSection(section))
+        return false;
+
     sectionComments[toLower(section)] = comment;
+    return true;
 }
 
-void IniFile::setKeyComment(const string& section, const string& key, const string& comment)
+bool IniFile::setKeyComment(const string& section, const string& key, const string& comment)
 {
+    if (!hasKey(section, key))
+        return false;
+
     keyComments[toLower(section)][toLower(key)] = comment;
+    return true;
 }
 
 void IniFile::print(bool print_comments) const

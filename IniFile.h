@@ -28,11 +28,11 @@ class IniFile
         bool hasSection(const string& section) const;
         bool hasKey(const string& section, const string& key) const;
         bool hasKey(const string& key) const;
-        void deleteSection(const string& section);
-        void deleteKey(const string& section, const string& key);
-        void deleteKey(const string& key);
-        void setSectionComment(const string& section, const string& comment);
-        void setKeyComment(const string& section, const string& key, const string& comment);
+        bool deleteSection(const string& section);
+        bool deleteKey(const string& section, const string& key);
+        bool deleteKey(const string& key);
+        bool setSectionComment(const string& section, const string& comment);
+        bool setKeyComment(const string& section, const string& key, const string& comment);
         void print(bool print_comments) const;
 
     private:

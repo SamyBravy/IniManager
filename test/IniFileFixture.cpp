@@ -35,10 +35,10 @@ TEST_F(IniFileFixture, ModifyValues)
 
 TEST_F(IniFileFixture, DeleteKeysAndSections)
 {
-    iniFile.deleteKey("section1", "key1");
+    EXPECT_TRUE(iniFile.deleteKey("section1", "key1"));
     EXPECT_FALSE(iniFile.hasKey("section1", "key1"));
 
-    iniFile.deleteSection("section2");
+    EXPECT_TRUE(iniFile.deleteSection("section2"));
     EXPECT_FALSE(iniFile.hasSection("section2"));
 }
 
@@ -57,8 +57,8 @@ TEST_F(IniFileFixture, SaveAndLoadWithFixture)
 
 TEST_F(IniFileFixture, CommentsInFixture)
 {
-    iniFile.setSectionComment("section1", "; This is a section comment\n");
-    iniFile.setKeyComment("section1", "key2", "; This is a key comment\n");
+    EXPECT_TRUE(iniFile.setSectionComment("section1", "; This is a section comment\n"));
+    EXPECT_TRUE(iniFile.setKeyComment("section1", "key2", "; This is a key comment\n"));
 
     const std::string testFileName = "fixture_comments.ini";
     iniFile.save(testFileName);
@@ -72,13 +72,13 @@ TEST_F(IniFileFixture, CommentsInFixture)
 TEST_F(IniFileFixture, CheckKeyPresenceAcrossSections)
 {
     EXPECT_TRUE(iniFile.hasKey("key1"));
-    iniFile.deleteKey("key1");
+    EXPECT_TRUE(iniFile.deleteKey("key1"));
     EXPECT_FALSE(iniFile.hasKey("key1"));
 }
 
 TEST_F(IniFileFixture, CheckSectionCommentsPersistence)
 {
-    iniFile.setSectionComment("section1", "; Section1 comment\n");
+    EXPECT_TRUE(iniFile.setSectionComment("section1", "; Section1 comment\n"));
     const std::string testFileName = "section_comments.ini";
     iniFile.save(testFileName);
 
@@ -90,7 +90,7 @@ TEST_F(IniFileFixture, CheckSectionCommentsPersistence)
 
 TEST_F(IniFileFixture, CheckKeyCommentsPersistence)
 {
-    iniFile.setKeyComment("section1", "key1", "; Key1 comment\n");
+    EXPECT_TRUE(iniFile.setKeyComment("section1", "key1", "; Key1 comment\n"));
     const std::string testFileName = "key_comments.ini";
     iniFile.save(testFileName);
 

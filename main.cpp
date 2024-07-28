@@ -313,7 +313,10 @@ void testDeleteSection()
     ini.set("SectionToDelete", "Key2", "Value2");
 
     ini.save("../iniFiles/test_delete_section.ini");
-    ini.deleteSection("SectionToDelete");
+    if (!ini.deleteSection("SectionToDelete"))
+        cout << "SectionToDelete does not exist" << endl;
+    if (!ini.deleteSection("NonExistingSection"))
+        cout << "NonExistingSection does not exist" << endl;
 
     try
     {
@@ -343,7 +346,9 @@ void testDeleteKey()
 
     ini.save("../iniFiles/test_delete_key.ini");
 
-    ini.deleteKey("Section1", "KeyToDelete");
+    if (!ini.deleteKey("Section1", "KeyToDelete"))
+        cout << "KeyToDelete does not exist in Section1" << endl;
+
     try
     {
         ini.save("../iniFiles/test_delete_key_specific_deleted.ini");
@@ -364,7 +369,11 @@ void testDeleteKey()
     ini.save("../iniFiles/test_delete_key.ini");
     ini.load("../iniFiles/test_delete_key.ini");
 
-    ini.deleteKey("KeyToDelete");
+    if (!ini.deleteKey("KeyToDelete"))
+        cout << "KeyToDelete does not exist" << endl;
+    if (!ini.deleteKey("NonExistingKey"))
+        cout << "NonExistingKey does not exist" << endl;
+
     try
     {
         ini.save("../iniFiles/test_delete_key_all_deleted.ini");
@@ -394,8 +403,12 @@ void testComments()
 
     ini.set("General", "Weight", "10");
     ini.set("NewSection", "NewKey", "NewValue");
-    ini.setSectionComment("NewSection", "; Comment for the new section\n");
-    ini.setKeyComment("NewSection", "NewKey", "; Comment for the new key\n");
+    if (!ini.setSectionComment("NewSection", "; Comment for the new section\n"))
+        cout << "NewSection does not exist" << endl;
+    if (!ini.setSectionComment("NonExistingSection", "; Comment for NonExistingSection\n"))
+        cout << "NonExistingSection does not exist" << endl;
+    if (!ini.setKeyComment("NewSection", "NewKey", "; Comment for the new key\n"))
+        cout << "NewKey does not exist in NewSection" << endl;
 
     try
     {

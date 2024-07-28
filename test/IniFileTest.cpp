@@ -19,7 +19,7 @@ TEST(IniFileTest, AddAndDeleteSections)
     IniFile iniFile;
     iniFile.addSection("new_section");
     EXPECT_TRUE(iniFile.hasSection("new_section"));
-    iniFile.deleteSection("new_section");
+    EXPECT_TRUE(iniFile.deleteSection("new_section"));
     EXPECT_FALSE(iniFile.hasSection("new_section"));
 }
 
@@ -28,7 +28,7 @@ TEST(IniFileTest, AddAndDeleteKeys)
     IniFile iniFile;
     iniFile.set("section", "key", "value");
     EXPECT_TRUE(iniFile.hasKey("section", "key"));
-    iniFile.deleteKey("section", "key");
+    EXPECT_TRUE(iniFile.deleteKey("section", "key"));
     EXPECT_FALSE(iniFile.hasKey("section", "key"));
 }
 
@@ -51,9 +51,9 @@ TEST(IniFileTest, CommentsHandling)
 {
     IniFile iniFile;
 
-    iniFile.setSectionComment("section", "; This is a section comment\n");
-    iniFile.setKeyComment("section", "key", "; This is a key comment\n");
     iniFile.set("section", "key", "value");
+    EXPECT_TRUE(iniFile.setSectionComment("section", "; This is a section comment\n"));
+    EXPECT_TRUE(iniFile.setKeyComment("section", "key", "; This is a key comment\n"));
 
     const string testFileName = "test_comments.ini";
     iniFile.save(testFileName);
@@ -110,4 +110,15 @@ TEST(IniFileTest, MalformedLines)
     EXPECT_TRUE(iniFile.get("section", "malformed_line_without_equals_sign").empty());
 
     remove(testFileName.c_str());
+}
+
+TEST(IniFileTest, NonExistingElements)
+{
+    IniFile iniFile;
+    iniFile.set("section", "Key", "value");
+    EXPECT_FALSE(iniFile.deleteKey("NonExistingKey"));
+    EXPECT_FALSE(iniFile.deleteKey("NonExistingSection", "NonExistingKey"));
+    EXPECT_FALSE(iniFile.deleteSection("NonExistingSection"));
+    EXPECT_FALSE(iniFile.setKeyComment("NonExistingSection", "NonExistingKey", "KeyComment"));
+    EXPECT_FALSE(iniFile.setSectionComment("NonExistingSection", "SectionComment"));
 }

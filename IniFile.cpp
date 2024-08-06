@@ -154,14 +154,18 @@ bool IniFile::hasKey(const string& section, const string& key) const
     return it->second.find(toLower(key)) != it->second.end();
 }
 
-bool IniFile::hasKey(const string& key) const
+vector<string> IniFile::hasKey(const string& key) const
 {
     string lowerKey = toLower(key);
 
-    // std::any_of ritorna true se almeno un elemento soddisfa il predicato
-    return any_of(data.begin(), data.end(), [&](const auto& section) {
-        return section.second.find(lowerKey) != section.second.end();
-    });
+    vector<string> sections;
+    for (const auto& section : data)
+    {
+        if (section.second.find(lowerKey) != section.second.end())
+            sections.push_back(section.first);
+    }
+
+    return sections;
 }
 
 bool IniFile::deleteSection(const string& section)
@@ -178,19 +182,10 @@ bool IniFile::deleteKey(const string& section, const string& key)
     if (it == data.end())
         return false;
 
-    it->second.erase(toLower(key));
-    return true;
-}
-
-bool IniFile::deleteKey(const string& key)
-{
-    if (!hasKey(key))
+    if (it->second.find(toLower(key)) == it->second.end())
         return false;
 
-    string lowerKey = toLower(key);
-
-    for (auto& section : data)
-        section.second.erase(lowerKey);
+    it->second.erase(toLower(key));
     return true;
 }
 
@@ -212,20 +207,20 @@ bool IniFile::setKeyComment(const string& section, const string& key, const stri
     return true;
 }
 
-void IniFile::print(bool print_comments) const
+string IniFile::print(bool print_comments) const
 {
+    string output;
+
     for (const auto& section : data)
     {
         if (print_comments)
         {
             auto sectionComment = sectionComments.find(section.first);
             if (sectionComment != sectionComments.end())
-            {
-                cout << sectionComment->second;
-            }
+                output += sectionComment->second;
         }
 
-        cout << '[' << section.first << ']' << std::endl;
+        output += '[' + section.first + ']' + '\n';
 
         for (const auto& key : section.second)
         {
@@ -236,13 +231,35 @@ void IniFile::print(bool print_comments) const
                 {
                     auto keyComment = keyCommentSection->second.find(key.first);
                     if (keyComment != keyCommentSection->second.end())
-                    {
-                        cout << keyComment->second;
-                    }
+                        output += keyComment->second;
                 }
             }
-            cout << key.first << '=' << key.second << std::endl;
+            output += key.first + '=' + key.second + '\n';
         }
     }
+
+    return output;
+}
+
+string IniFile::getSectionComment(const string &section) const
+{
+    auto it = sectionComments.find(toLower(section));
+    if (it == sectionComments.end())
+        return "";
+
+    return it->second;
+}
+
+string IniFile::getKeyComment(const string &section, const string &key) const
+{
+    auto it = keyComments.find(toLower(section));
+    if (it == keyComments.end())
+        return "";
+
+    auto it2 = it->second.find(toLower(key));
+    if (it2 == it->second.end())
+        return "";
+
+    return it2->second;
 }
 

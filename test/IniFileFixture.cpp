@@ -55,47 +55,32 @@ TEST_F(IniFileFixture, SaveAndLoadWithFixture)
     std::remove(testFileName.c_str());
 }
 
-TEST_F(IniFileFixture, CommentsInFixture)
+TEST_F(IniFileFixture, CommentsHandling)
 {
+    iniFile.set("section1", "key1", "value1");
     EXPECT_TRUE(iniFile.setSectionComment("section1", "; This is a section comment\n"));
-    EXPECT_TRUE(iniFile.setKeyComment("section1", "key2", "; This is a key comment\n"));
+    EXPECT_TRUE(iniFile.setKeyComment("section1", "key1", "; This is a key comment\n"));
 
-    const std::string testFileName = "fixture_comments.ini";
+    const std::string testFileName = "comments_test.ini";
     iniFile.save(testFileName);
 
     IniFile loadedIniFile(testFileName);
-    EXPECT_EQ(loadedIniFile.get("section1", "key2"), "value2");
+    EXPECT_EQ(loadedIniFile.get("section1", "key1"), "value1");
+    EXPECT_EQ(loadedIniFile.getSectionComment("section1"), "; This is a section comment\n");
+    EXPECT_EQ(loadedIniFile.getKeyComment("section1", "key1"), "; This is a key comment\n");
 
     std::remove(testFileName.c_str());
 }
 
 TEST_F(IniFileFixture, CheckKeyPresenceAcrossSections)
 {
-    EXPECT_TRUE(iniFile.hasKey("key1"));
-    EXPECT_TRUE(iniFile.deleteKey("key1"));
-    EXPECT_FALSE(iniFile.hasKey("key1"));
-}
+    std::vector<std::string> expectedSections1 = {"section1", "section2"};
+    std::vector<std::string> expectedSections2 = {"section2"};
+    std::vector<std::string> expectedSections3 = {};
 
-TEST_F(IniFileFixture, CheckSectionCommentsPersistence)
-{
-    EXPECT_TRUE(iniFile.setSectionComment("section1", "; Section1 comment\n"));
-    const std::string testFileName = "section_comments.ini";
-    iniFile.save(testFileName);
-
-    IniFile loadedIniFile(testFileName);
-    EXPECT_EQ(loadedIniFile.get("section1", "key1"), "value1");
-
-    std::remove(testFileName.c_str());
-}
-
-TEST_F(IniFileFixture, CheckKeyCommentsPersistence)
-{
-    EXPECT_TRUE(iniFile.setKeyComment("section1", "key1", "; Key1 comment\n"));
-    const std::string testFileName = "key_comments.ini";
-    iniFile.save(testFileName);
-
-    IniFile loadedIniFile(testFileName);
-    EXPECT_EQ(loadedIniFile.get("section1", "key1"), "value1");
-
-    std::remove(testFileName.c_str());
+    EXPECT_EQ(iniFile.hasKey("key1"), expectedSections1);
+    EXPECT_TRUE(iniFile.deleteKey("section1", "key1"));
+    EXPECT_EQ(iniFile.hasKey("key1"), expectedSections2);
+    EXPECT_TRUE(iniFile.deleteKey("section2", "key1"));
+    EXPECT_EQ(iniFile.hasKey("key1"), expectedSections3);
 }

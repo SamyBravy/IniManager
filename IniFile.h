@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -27,13 +28,14 @@ class IniFile
         void addSection(const string& section);
         bool hasSection(const string& section) const;
         bool hasKey(const string& section, const string& key) const;
-        bool hasKey(const string& key) const;
+        vector<string> hasKey(const string& key) const;
         bool deleteSection(const string& section);
         bool deleteKey(const string& section, const string& key);
-        bool deleteKey(const string& key);
         bool setSectionComment(const string& section, const string& comment);
         bool setKeyComment(const string& section, const string& key, const string& comment);
-        void print(bool print_comments) const;
+        string getSectionComment(const string& section) const;
+        string getKeyComment(const string& section, const string& key) const;
+        string print(bool print_comments) const;
 
     private:
         string fileName;

@@ -62,6 +62,8 @@ TEST(IniFileTest, CommentsHandling)
     EXPECT_EQ(loadedIniFile.get("section", "key"), "value");
     EXPECT_TRUE(loadedIniFile.hasSection("section"));
     EXPECT_TRUE(loadedIniFile.hasKey("section", "key"));
+    EXPECT_EQ(loadedIniFile.getSectionComment("section"), "; This is a section comment\n");
+    EXPECT_EQ(loadedIniFile.getKeyComment("section", "key"), "; This is a key comment\n");
 
     remove(testFileName.c_str());
 }
@@ -116,9 +118,10 @@ TEST(IniFileTest, NonExistingElements)
 {
     IniFile iniFile;
     iniFile.set("section", "Key", "value");
-    EXPECT_FALSE(iniFile.deleteKey("NonExistingKey"));
     EXPECT_FALSE(iniFile.deleteKey("NonExistingSection", "NonExistingKey"));
     EXPECT_FALSE(iniFile.deleteSection("NonExistingSection"));
     EXPECT_FALSE(iniFile.setKeyComment("NonExistingSection", "NonExistingKey", "KeyComment"));
     EXPECT_FALSE(iniFile.setSectionComment("NonExistingSection", "SectionComment"));
+    EXPECT_TRUE(iniFile.getKeyComment("NonExistingSection", "NonExistingKey").empty());
+    EXPECT_TRUE(iniFile.getSectionComment("NonExistingSection").empty());
 }

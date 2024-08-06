@@ -64,9 +64,7 @@ void testCreateIniFile()
         cerr << "Error saving INI file: " << e.what() << endl;
     }
 
-    cout << "Created file:" << endl;
-    ini.print(false);
-    cout << endl;
+    cout << "Created file:" << endl << ini.print(true) << endl;
 
     fs::remove("../iniFiles/created.ini");
 }
@@ -101,8 +99,7 @@ void testLoadSaveComments()
         cerr << "Error loading INI file: " << e.what() << endl;
     }
 
-    cout << "Cloned file without comments:" << endl;
-    ini.print(false);
+    cout << "Cloned file without comments:" << endl << ini.print(false);
 
     IniFile loadedIni;
 
@@ -115,9 +112,7 @@ void testLoadSaveComments()
         cerr << "Error loading INI file: " << e.what() << endl;
     }
 
-    cout << "Modified file with comments:" << endl;
-    loadedIni.print(true);
-    cout << endl;
+    cout << "Modified file with comments:" << endl << loadedIni.print(true) << endl;
 
     fs::remove("../iniFiles/new_test.ini");
 }
@@ -267,8 +262,12 @@ void testHasKey()
 
     cout << "Has 'Section1.Key1': " << ini.hasKey("Section1", "Key1") << endl;
     cout << "Has 'Section1.Key3': " << ini.hasKey("Section1", "Key3") << endl;
-    cout << "Has 'Key2' (in any section): " << ini.hasKey("Key2") << endl;
-    cout << "Has 'Key3' (in any section): " << ini.hasKey("Key3") << endl;
+    cout << "Has 'Key2' (in any section):" << endl;
+    for (const auto& section : ini.hasKey("Key2"))
+        cout << "  " << section << ".Key2" << endl;
+    cout << "Has 'Key3' (in any section):" << endl;
+    for (const auto& section : ini.hasKey("Key3"))
+        cout << "  " << section << ".Key3" << endl;
     cout << endl;
 }
 
@@ -348,6 +347,8 @@ void testDeleteKey()
 
     if (!ini.deleteKey("Section1", "KeyToDelete"))
         cout << "KeyToDelete does not exist in Section1" << endl;
+    if (!ini.deleteKey("Section2", "KeyToDelete"))
+        cout << "KeyToDelete does not exist in Section2" << endl;
 
     try
     {
@@ -362,34 +363,9 @@ void testDeleteKey()
     cout << "Has 'Section1.KeyToDelete': " << ini.hasKey("Section1", "KeyToDelete") << endl;
     cout << "Has 'Section2.KeyToDelete': " << ini.hasKey("Section2", "KeyToDelete") << endl;
     cout << "Has 'Section1.KeyToKeep': " << ini.hasKey("Section1", "KeyToKeep") << endl;
-
-    fs::remove("../iniFiles/test_delete_key_specific_deleted.ini");
-
-    ini.set("Section1", "KeyToDelete", "ValueToDelete");
-    ini.save("../iniFiles/test_delete_key.ini");
-    ini.load("../iniFiles/test_delete_key.ini");
-
-    if (!ini.deleteKey("KeyToDelete"))
-        cout << "KeyToDelete does not exist" << endl;
-    if (!ini.deleteKey("NonExistingKey"))
-        cout << "NonExistingKey does not exist" << endl;
-
-    try
-    {
-        ini.save("../iniFiles/test_delete_key_all_deleted.ini");
-    }
-    catch (const exception& e)
-    {
-        cerr << "Error saving INI file: " << e.what() << endl;
-    }
-    ini.load("../iniFiles/test_delete_key_all_deleted.ini");
-    cout << "After deleting 'KeyToDelete' from all sections:" << endl;
-    cout << "Has 'Section1.KeyToDelete': " << ini.hasKey("Section1", "KeyToDelete") << endl;
-    cout << "Has 'Section2.KeyToDelete': " << ini.hasKey("Section2", "KeyToDelete") << endl;
-    cout << "Has 'Section1.KeyToKeep': " << ini.hasKey("Section1", "KeyToKeep") << endl;
     cout << endl;
 
-    fs::remove("../iniFiles/test_delete_key_all_deleted.ini");
+    fs::remove("../iniFiles/test_delete_key_specific_deleted.ini");
 }
 
 void testComments()
@@ -398,17 +374,20 @@ void testComments()
 
     IniFile ini("../iniFiles/test_comments.ini");
 
-    cout << "Original file with comments:" << endl;
-    ini.print(true);
+    cout << "Original file with comments:" << endl << ini.print(true) << endl;
 
     ini.set("General", "Weight", "10");
     ini.set("NewSection", "NewKey", "NewValue");
     if (!ini.setSectionComment("NewSection", "; Comment for the new section\n"))
         cout << "NewSection does not exist" << endl;
+    cout << "NewSection comment: " << ini.getSectionComment("NewSection") << endl;
     if (!ini.setSectionComment("NonExistingSection", "; Comment for NonExistingSection\n"))
         cout << "NonExistingSection does not exist" << endl;
+    cout << "NonExistingSection comment: " << ini.getSectionComment("NonExistingSection") << endl;
     if (!ini.setKeyComment("NewSection", "NewKey", "; Comment for the new key\n"))
         cout << "NewKey does not exist in NewSection" << endl;
+    cout << "NewKey comment: " << ini.getKeyComment("NewSection", "NewKey") << endl;
+    cout << "NonExistingKey comment: " << ini.getKeyComment("NewSection", "NonExistingKey") << endl;
 
     try
     {
@@ -428,8 +407,7 @@ void testComments()
         cerr << "Error loading INI file: " << e.what() << endl;
     }
 
-    cout << "Modified file with comments:" << endl;
-    ini.print(true);
+    cout << "Modified file with comments:" << endl << ini.print(true);
 
     fs::remove("../iniFiles/test_comments_modified.ini");
 }

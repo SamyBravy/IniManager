@@ -7,6 +7,8 @@
 
 **IniManager** is a robust C++ project designed for parsing, modifying, and managing **INI configuration files**.
 
+It includes a **static library** that can be easily integrated into other applications, and a standalone executable for testing.
+
 It offers a simple and intuitive API to handle sections, keys, and values, with support for comments and case-insensitive keys.
 
 ## 🚀 Features
